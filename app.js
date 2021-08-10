@@ -10,12 +10,14 @@ class App {
         this.$formButtons = document.querySelector('#form-buttons')
         this.$formCloseButton = document.querySelector('#form-close-button')
         this.$placeHolder = document.querySelector('#placeholder')
+        this.$modal = document.querySelector(".modal")
         this.addEventListeners();
     }
 
     addEventListeners(){
         document.body.addEventListener('click', event =>{
         this.handleFormClick(event) 
+        this.openModal(event)
         });
 
         this.$form.addEventListener('submit', event => {
@@ -67,6 +69,13 @@ class App {
 
         this.$noteTitle.value = '';
         this.$noteText.value = '';
+    }
+
+    openModal(event){
+        if (event.target.closest('.note')){
+            console.log(this.$modal)
+            this.$modal.classList.toggle('open-modal')
+        }
     }
 
     addNote({ title, text }){
