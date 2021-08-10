@@ -8,6 +8,7 @@ class App {
         this.$noteTitle = document.querySelector('#note-title')
         this.$noteText = document.querySelector('#note-text')
         this.$formButtons = document.querySelector('#form-buttons')
+        this.$formCloseButton = document.querySelector('#form-close-button')
         this.$placeHolder = document.querySelector('#placeholder')
         this.addEventListeners();
     }
@@ -23,19 +24,30 @@ class App {
             const text = this.$noteText.value;
             const hasNote = title || text;
 
-            if(hasNote){
-                //add note
-                this.addNote({ title, text })
+            hasNote ? this.addNote({ title, text }) : null
 
-            }
+        })
+
+        this.$formCloseButton.addEventListener('click', event =>{
+            event.stopPropagation(); // stops the event handler for 'bubbling up' since it's 
+            // on the entire form, not just the text input.
+            this.closeForm()
         })
     }
 
     handleFormClick(event){
         const isFormClicked = this.$form.contains(event.target)
+        const isFormOpen = this.$form.classList.contains('form-open')
+        const title = this.$noteTitle.value;
+        const text = this.$noteText.value;
+        const hasNote = title || text;
 
-        if(isFormClicked){
+        if(isFormClicked && isFormOpen){
+            null   
+        } else if(isFormClicked){
             this.openForm()
+        } else if(hasNote){
+            this.addNote({ title, text })
         } else {
             this.closeForm()
         }
@@ -44,25 +56,30 @@ class App {
         this.$form.classList.add('form-open')
         this.$noteTitle.style.display = 'block';
         this.$formButtons.style.display = 'block';
+        this.$noteTitle.focus()
+        
     }
 
     closeForm(){
         this.$form.classList.remove('form-open')
         this.$noteTitle.style.display = 'none';
         this.$formButtons.style.display = 'none';
+
+        this.$noteTitle.value = '';
+        this.$noteText.value = '';
     }
 
-    addNote(note){
+    addNote({ title, text }){
         const newNote = {
-            title: note.title,
-            text: note.text,
+            title,
+            text,
             color: 'white',
             id: this.notes.length > 0 ? this.notes[this.notes.length -1].id +1 : 1
         };
 
         this.notes = [...this.notes, newNote];
         this.displayNotes();
-        
+        this.closeForm();
 
     }
 
