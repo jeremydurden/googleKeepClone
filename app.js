@@ -17,6 +17,7 @@ class App {
         this.$modalTitle = document.querySelector(".modal-title")
         this.$modalText = document.querySelector(".modal-text")
         this.$modalCloseButton = document.querySelector('.modal-close-button')
+        this.$colorTooltip = document.querySelector('#color-tooltip');
         this.addEventListeners();
     }
 
@@ -26,6 +27,10 @@ class App {
         this.selectNote(event);
         this.openModal(event);
         });
+
+        document.body.addEventListener('mouseover', event => {
+            this.openTooltip(event)
+        })
 
         this.$form.addEventListener('submit', event => {
             event.preventDefault()
@@ -97,6 +102,22 @@ class App {
         this.$modal.classList.toggle('open-modal')
     }
 
+    openTooltip(event) {
+    console.log('running')
+    if (!event.target.matches('.toolbar-color')) return;
+    console.log('running 2')
+    this.id = event.target.parentNode.parentNode.parentNode.dataset.id;
+    console.log(this.id, 'id')
+    const noteCoords = event.target.getBoundingClientRect();
+    const horizontal = noteCoords.left + window.scrollX
+    console.log(horizontal, 'horizontal')
+    const vertical = noteCoords.top + window.scrollY
+    console.log(vertical, 'vertical')
+    this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;
+    console.log(this.$colorTooltip, 'ctt')
+    this.$colorTooltip.style.display = 'flex';
+  }
+
     addNote({ title, text }){
         const newNote = {
             title,
@@ -139,8 +160,8 @@ class App {
           <div class="note-text">${note.text}</div>
           <div class="toolbar-container">
             <div class="toolbar">
-              <img class="toolbar-color" src="https://icon.now.sh/palette">
-              <img class="toolbar-delete" src="https://icon.now.sh/delete">
+              <span class="material-icons toolbar-color">palette</span>
+              <span class="material-icons toolbar-delete">delete</span>
             </div>
           </div>
         </div>
