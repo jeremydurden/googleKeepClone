@@ -25,6 +25,7 @@ class App {
       this.handleFormClick(event);
       this.selectNote(event);
       this.openModal(event);
+      this.deleteNote(event);
     });
 
     document.body.addEventListener("mouseover", (event) => {
@@ -106,6 +107,8 @@ class App {
   }
 
   openModal(event) {
+    if (event.target.matches(".toolbar-delete")) return;
+
     if (event.target.closest(".note")) {
       console.log(this.$modal);
       this.$modal.classList.toggle("open-modal");
@@ -174,6 +177,14 @@ class App {
     this.id = $selectedNote.dataset.id;
   }
 
+  deleteNote(event) {
+    event.stopPropagation();
+    if (!event.target.matches(".toolbar-delete")) return;
+    const id = event.target.dataset.id;
+    this.notes = this.notes.filter((note) => note.id !== Number(id));
+    this.displayNotes();
+  }
+
   displayNotes() {
     const hasNotes = this.notes.length > 0;
     this.$placeHolder.style.display = hasNotes ? "none" : "flex";
@@ -191,7 +202,9 @@ class App {
               <span class="material-icons toolbar-color" data-id=${
                 note.id
               }>palette</span>
-              <span class="material-icons toolbar-delete">delete</span>
+              <span class="material-icons toolbar-delete" data-id=${
+                note.id
+              }>delete</span>
             </div>
           </div>
         </div>
