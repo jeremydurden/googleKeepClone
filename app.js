@@ -1,173 +1,204 @@
 class App {
-    constructor(){
-        this.notes = [];
-        this.title = ''
-        this.text = ''
-        this.id = ''
+  constructor() {
+    this.notes = [];
+    this.title = "";
+    this.text = "";
+    this.id = "";
 
+    this.$form = document.querySelector("#form");
+    this.$notes = document.querySelector("#notes");
+    this.$noteTitle = document.querySelector("#note-title");
+    this.$noteText = document.querySelector("#note-text");
+    this.$formButtons = document.querySelector("#form-buttons");
+    this.$formCloseButton = document.querySelector("#form-close-button");
+    this.$placeHolder = document.querySelector("#placeholder");
+    this.$modal = document.querySelector(".modal");
+    this.$modalTitle = document.querySelector(".modal-title");
+    this.$modalText = document.querySelector(".modal-text");
+    this.$modalCloseButton = document.querySelector(".modal-close-button");
+    this.$colorTooltip = document.querySelector("#color-tooltip");
+    this.addEventListeners();
+  }
 
-        this.$form = document.querySelector('#form')
-        this.$notes = document.querySelector('#notes');
-        this.$noteTitle = document.querySelector('#note-title')
-        this.$noteText = document.querySelector('#note-text')
-        this.$formButtons = document.querySelector('#form-buttons')
-        this.$formCloseButton = document.querySelector('#form-close-button')
-        this.$placeHolder = document.querySelector('#placeholder')
-        this.$modal = document.querySelector(".modal")
-        this.$modalTitle = document.querySelector(".modal-title")
-        this.$modalText = document.querySelector(".modal-text")
-        this.$modalCloseButton = document.querySelector('.modal-close-button')
-        this.$colorTooltip = document.querySelector('#color-tooltip');
-        this.addEventListeners();
+  addEventListeners() {
+    document.body.addEventListener("click", (event) => {
+      this.handleFormClick(event);
+      this.selectNote(event);
+      this.openModal(event);
+    });
+
+    document.body.addEventListener("mouseover", (event) => {
+      this.openTooltip(event);
+    });
+
+    document.body.addEventListener("mouseout", (event) => {
+      this.closeTooltip(event);
+    });
+
+    this.$colorTooltip.addEventListener("mouseover", function () {
+      this.style.display = "flex";
+    });
+
+    this.$colorTooltip.addEventListener("mouseout", function () {
+      this.style.display = "none";
+    });
+
+    this.$colorTooltip.addEventListener("click", (event) => {
+      const color = event.target.dataset.color;
+      if (color) {
+        this.editNoteColor(color);
+      }
+    });
+
+    this.$form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const title = this.$noteTitle.value;
+      const text = this.$noteText.value;
+      const hasNote = title || text;
+      if (hasNote) {
+        // add note
+        this.addNote({ title, text });
+      }
+    });
+
+    this.$formCloseButton.addEventListener("click", (event) => {
+      event.stopPropagation(); // stops the event handler for 'bubbling up' since it's
+      // on the entire form, not just the text input.
+      this.closeForm();
+    });
+
+    this.$modalCloseButton.addEventListener("click", (event) => {
+      this.closeModal(event);
+    });
+  }
+
+  handleFormClick(event) {
+    const isFormClicked = this.$form.contains(event.target);
+    const isFormOpen = this.$form.classList.contains("form-open");
+    const title = this.$noteTitle.value;
+    const text = this.$noteText.value;
+    const hasNote = title || text;
+
+    if (isFormClicked && isFormOpen) {
+      null;
+    } else if (isFormClicked) {
+      this.openForm();
+    } else if (hasNote) {
+      this.addNote({ title, text });
+    } else {
+      this.closeForm();
     }
+  }
+  openForm() {
+    this.$form.classList.add("form-open");
+    this.$noteTitle.style.display = "block";
+    this.$formButtons.style.display = "block";
+    this.$noteTitle.focus();
+  }
 
-    addEventListeners(){
-        document.body.addEventListener('click', event =>{
-        this.handleFormClick(event);
-        this.selectNote(event);
-        this.openModal(event);
-        });
+  closeForm() {
+    this.$form.classList.remove("form-open");
+    this.$noteTitle.style.display = "none";
+    this.$formButtons.style.display = "none";
 
-        document.body.addEventListener('mouseover', event => {
-            this.openTooltip(event)
-        })
+    this.$noteTitle.value = "";
+    this.$noteText.value = "";
+  }
 
-        this.$form.addEventListener('submit', event => {
-            event.preventDefault()
-            const title = this.$noteTitle.value;
-            const text = this.$noteText.value;
-            const hasNote = title || text;
-
-            hasNote ? this.addNote({ title, text }) : null
-
-        })
-
-        this.$formCloseButton.addEventListener('click', event =>{
-            event.stopPropagation(); // stops the event handler for 'bubbling up' since it's 
-            // on the entire form, not just the text input.
-            this.closeForm()
-        })
-
-        this.$modalCloseButton.addEventListener('click', event => {
-            this.closeModal(event)
-        })
-
+  openModal(event) {
+    if (event.target.closest(".note")) {
+      console.log(this.$modal);
+      this.$modal.classList.toggle("open-modal");
+      this.$modalTitle.value = this.title;
+      this.$modalText.value = this.text;
     }
+  }
 
-    handleFormClick(event){
-        const isFormClicked = this.$form.contains(event.target)
-        const isFormOpen = this.$form.classList.contains('form-open')
-        const title = this.$noteTitle.value;
-        const text = this.$noteText.value;
-        const hasNote = title || text;
+  closeModal(event) {
+    this.editNote();
+    this.$modal.classList.toggle("open-modal");
+  }
 
-        if(isFormClicked && isFormOpen){
-            null   
-        } else if(isFormClicked){
-            this.openForm()
-        } else if(hasNote){
-            this.addNote({ title, text })
-        } else {
-            this.closeForm()
-        }
-    }
-    openForm(){
-        this.$form.classList.add('form-open')
-        this.$noteTitle.style.display = 'block';
-        this.$formButtons.style.display = 'block';
-        this.$noteTitle.focus()
-        
-    }
+  openTooltip(event) {
+    if (!event.target.matches(".toolbar-color")) return;
+    this.id = event.target.dataset.id;
 
-    closeForm(){
-        this.$form.classList.remove('form-open')
-        this.$noteTitle.style.display = 'none';
-        this.$formButtons.style.display = 'none';
-
-        this.$noteTitle.value = '';
-        this.$noteText.value = '';
-    }
-
-    openModal(event){
-        if (event.target.closest('.note')){
-            console.log(this.$modal)
-            this.$modal.classList.toggle('open-modal')
-            this.$modalTitle.value = this.title;
-            this.$modalText.value = this.text;
-        }
-    }
-
-    closeModal(event){
-        this.editNote()
-        this.$modal.classList.toggle('open-modal')
-    }
-
-    openTooltip(event) {
-    console.log('running')
-    if (!event.target.matches('.toolbar-color')) return;
-    console.log('running 2')
-    this.id = event.target.parentNode.parentNode.parentNode.dataset.id;
-    console.log(this.id, 'id')
     const noteCoords = event.target.getBoundingClientRect();
-    const horizontal = noteCoords.left + window.scrollX
-    console.log(horizontal, 'horizontal')
-    const vertical = noteCoords.top + window.scrollY
-    console.log(vertical, 'vertical')
+    const horizontal = noteCoords.left + window.scrollX;
+    const vertical = window.scrollY - 17;
+
     this.$colorTooltip.style.transform = `translate(${horizontal}px, ${vertical}px)`;
-    console.log(this.$colorTooltip, 'ctt')
-    this.$colorTooltip.style.display = 'flex';
+    this.$colorTooltip.style.display = "flex";
   }
 
-    addNote({ title, text }){
-        const newNote = {
-            title,
-            text,
-            color: 'white',
-            id: this.notes.length > 0 ? this.notes[this.notes.length -1].id +1 : 1
-        };
-
-        this.notes = [...this.notes, newNote];
-        this.displayNotes();
-        this.closeForm();
-
-    }
-
-    editNote() {
-     const title = this.$modalTitle.value;
-     const text = this.$modalText.value;
-     this.notes = this.notes.map(note => 
-       note.id === Number(this.id) ? { ...note, title, text } : note
-     );
-     this.displayNotes();
+  closeTooltip(event) {
+    if (!event.target.matches(".toolbar-color")) return;
+    this.$colorTooltip.style.display = "none";
   }
 
-    selectNote(event){
-        const $selectedNote = event.target.closest('.note')
-        if(!$selectedNote) return;
-        const [$noteTitle, $noteText] = $selectedNote.children
-        this.title = $noteTitle.innerText;
-        this.text = $noteText.innerText;
-        this.id = $selectedNote.dataset.id;
-    }
+  addNote({ title, text }) {
+    const newNote = {
+      title,
+      text,
+      color: "white",
+      id: this.notes.length > 0 ? this.notes[this.notes.length - 1].id + 1 : 1,
+    };
 
-    displayNotes(){
-        const hasNotes = this.notes.length > 0;
-        this.$placeHolder.style.display = hasNotes ?  'none' : 'flex'
+    this.notes = [...this.notes, newNote];
+    this.displayNotes();
+    this.closeForm();
+  }
 
-        this.$notes.innerHTML = this.notes.map(note => `
-        <div style="background: ${note.color};" class="note" data-id="${note.id}">
-          <div class="${note.title && 'note-title'}">${note.title}</div>
+  editNote() {
+    const title = this.$modalTitle.value;
+    const text = this.$modalText.value;
+    this.notes = this.notes.map((note) =>
+      note.id === Number(this.id) ? { ...note, title, text } : note
+    );
+    this.displayNotes();
+  }
+
+  editNoteColor(color) {
+    this.notes = this.notes.map((note) =>
+      note.id === Number(this.id) ? { ...note, color } : note
+    );
+    this.displayNotes();
+  }
+
+  selectNote(event) {
+    const $selectedNote = event.target.closest(".note");
+    if (!$selectedNote) return;
+    const [$noteTitle, $noteText] = $selectedNote.children;
+    this.title = $noteTitle.innerText;
+    this.text = $noteText.innerText;
+    this.id = $selectedNote.dataset.id;
+  }
+
+  displayNotes() {
+    const hasNotes = this.notes.length > 0;
+    this.$placeHolder.style.display = hasNotes ? "none" : "flex";
+
+    this.$notes.innerHTML = this.notes
+      .map(
+        (note) => `
+        <div style="background: ${note.color};" class="note" data-id="${
+          note.id
+        }">
+          <div class="${note.title && "note-title"}">${note.title}</div>
           <div class="note-text">${note.text}</div>
           <div class="toolbar-container">
             <div class="toolbar">
-              <span class="material-icons toolbar-color">palette</span>
+              <span class="material-icons toolbar-color" data-id=${
+                note.id
+              }>palette</span>
               <span class="material-icons toolbar-delete">delete</span>
             </div>
           </div>
         </div>
-     `).join("");
-    }
-
+     `
+      )
+      .join("");
+  }
 }
 
-new App()
+new App();

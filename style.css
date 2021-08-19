@@ -296,7 +296,7 @@ input:focus {
   background: #fff;
   border: 1px solid black;
   left: 0;
-  z-index: 20;
+  z-index: 20000 !important;
   border-radius: 5px;
   display: none;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
